@@ -1,0 +1,30 @@
+name: teger-guardrails
+services:
+  - name: backend
+    source_dir: backend
+    github:
+      branch: main
+      deploy_on_push: true
+    run_command: uvicorn app:app --host 0.0.0.0 --port 8080
+    environment_slug: python
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: GEMINI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: INTERSWITCH_MODE
+        value: mock
+      - key: ALLOW_ORIGINS
+        value: "*"
+static_sites:
+  - name: frontend
+    source_dir: frontend
+    github:
+      branch: main
+      deploy_on_push: true
+    build_command: npm install && npm run build
+    output_dir: dist
+    envs:
+      - key: VITE_API_URL
+        value: ${backend.PUBLIC_URL}
